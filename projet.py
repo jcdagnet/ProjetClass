@@ -1,4 +1,18 @@
 ﻿# Créé par Aurélie, le 12/06/2019 en Python 3.4
+from graphics import *
+
+#Définition de la taille de la fenêtre
+LARGEUR=900
+HAUTEUR=600
+f=init_graphics(LARGEUR,HAUTEUR)
+
+p1=(50,50)
+draw_circle(p1,50,rouge,f)
+#attente pour terminer
+wait_escape(f)
+
+quit_graphics()
+
 class Voyageur:
     def __init__(self,x,y,dx,dy,numeroPorte):
         position=[x,y]
