@@ -1,35 +1,84 @@
 ﻿# Créé par Aurélie, le 12/06/2019 en Python 3.4
-class Voyageur:
-    def __init__(self,x,y,dx,dy,numeroPorte):
-        position=[x,y]
-        rayon=5
-        deplacement=[dx,dy]
-        porteDeSortie=numeroPorte
-        #couleur="mettre une couleur"
+from graphics import *
 
+#Définition de la taille de la fenêtre
+LARGEUR=900
+HAUTEUR=600
+f=init_graphics(LARGEUR,HAUTEUR)
+
+p1=[50,50]
+draw_circle(p1,50,rouge,f)
+#attente pour terminer
+wait_escape(f)
+
+quit_graphics()
+
+class Voyageur:
+    def __init__(self,p,v,numPorte):
+        position=p
+        rayon=5
+        deplacement=v
+        porteDeSortie=numPorte
+        choix=alea_int(1,4)
+        if (choix==1):
+            couleur=rouge
+        elif (choix==2):
+            couleur=vert
+        elif (choix==3):
+            couleur=bleu
+        else:
+            couleur=orange
+                
+    def dessinVoyageur(self):
+        draw_fill_circle(self.position,self.rayon,self.couleur,f)
 
 class Porte :
-    def __init__(self,x1,y1,x2,y2,d):
-        extremite1=[x1,y1]
-        extremite2= [x2,y2]
-        milieu=[(x1+x2)//2,(y1+y2)//2]
+    def __init__(self,p1,p2,d):
+        extremite1=p1
+        extremite2= p2
+        milieu=[(p1[0]+p2[0])//2,(p1[1]+p2[1])//2]
         debit=d
         debitEnCours=d
+        couleur=marron
 
-class ObstaclePoteau :
-    def __init__(self,x,y):
-        position=[x,y]
+    def dessinPorte(self):
+        draw_line(self.extremite1,self.extremite2,self.couleur,f)
+
+class Poteau :
+    def __init__(self,p):
+        position=p
         rayon=10
-        #couleur="mettre une couleur"
+        couleur=jaune
 
-class Listes :
+    def dessinPoteau(self):
+        draw_fill_circle(self.position,self.rayon,self.couleur)
+
+class Salle :
     def __init__(self):
         listeVoyageurs=[]
+        listePortes = []
+        listePoteaux=[]
 
-    def ajouterVoyageurs(self,voyageur): #voyageur est un objet de la classe Voyageur
-        voyageur = Voyageur()
+    def ajouterVoyageur(self,p,v,numPorte): #voyageur est un objet de la classe Voyageur
+        voyageur = Voyageur(p,v,numPorte)
         self.listeVoyageurs.append(voyageur)
+        
+    def effaceVoyageur(self,voyageur):
+        self.listeVoyageurs.remove(voyageur)
+   
+    def ajouterPorte(self,p1,p2,d):
+        porte = Porte(p1,p2,d)
+        self.listePortes.append(porte)
 
+    def effacePorte(self,porte):
+        self.listeVoyageurs.remove(porte)
+   
+   
+    def ajouterPoteau(self,p):
+        poteau = Poteau(p)
+        self.listePortes.append(poteau)
 
-
+    def effacePorte(self,poteau):
+        self.listeVoyageurs.remove(poteau)
+ 
 
