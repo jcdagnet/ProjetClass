@@ -47,7 +47,7 @@ def pasDeVoyageurs(pVoyageur): #en paramètre, il me faut une instance de la cla
 def nouvelleCoordonnee(pXancien,pYancien,pXvise,pYvise):
     # je cherche les nouvelles coordonnées quand il n y a pas de risque de collision
     coefficientDirecteur = (pYvise-pYancien)/(pXvise-pXancien) # formule de seconde pour le coeff directeur d'une droite
-    discriminant = 4(1+coefficientDirecteur**2)*(9-(coefficientDirecteur*pXancien)**2) # après résolution d'une equation, je suis tombée sur ce discriminant
+    discriminant = 4(1+coefficientDirecteur**2)*(9) # après résolution d'une equation, je suis tombée sur ce discriminant
     premierX=(2*pXancien*(1+coefficientDirecteur**2)-sqrt(discriminant))/(2*(1+coefficientDirecteur**2)) #premiere solution de mon equation
     deuxiemeX=(2*pXancien*(1+coefficientDirecteur**2)+sqrt(discriminant))/(2*(1+coefficientDirecteur**2)) # deuxieme solution de mon equation
     if ((pXancien<premierX and premierX<pXvise) or (pXancien>premierX and premierX>pXvise)) : # il y a deux points distants de 3, il faut prendre celui qui nous fait avancer
@@ -55,7 +55,7 @@ def nouvelleCoordonnee(pXancien,pYancien,pXvise,pYvise):
         return premierX,y
     else:
         y=coefficientDirecteur*deuxiemeX+(pYancien-discriminant*pXancien) # l'equation de la droite
-        return premierX,y
+        return deuxiemeX,y
 
 def nouvelleCoordonnee1(pXancien,pYancien,pXvise,pYvise): # qd le problème vient du poteau
     xSiPasProbleme,ySiPasProbleme=nouvelleCoordonnee(pXancien,pYancien,pXvise,pYvise)
