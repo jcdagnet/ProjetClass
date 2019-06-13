@@ -17,13 +17,13 @@ class Voyageur:
         self.porteDeSortie=numPorte
         choix=alea_int(1,4)
         if (choix==1):
-            couleur=rouge
+            self.couleur=rouge
         elif (choix==2):
-            couleur=vert
+            self.couleur=vert
         elif (choix==3):
-            couleur=bleu
+            self.couleur=bleu
         else:
-            couleur=orange
+            self.couleur=orange
                 
     def dessinVoyageur(self):
         draw_fill_circle(self.position,self.rayon,self.couleur,f)
@@ -32,8 +32,8 @@ class Voyageur:
         draw_fill_circle(self.position,self.rayon,noir,f)
         
     def deplacementVoyageur(self):
-        self.position[0]+=deplacement[0]
-        self.position[1]+=deplacement[1]
+        self.position[0]+=self.deplacement[0]
+        self.position[1]+=self.deplacement[1]
 
 class Porte :
     def __init__(self,p1,p2,d):
@@ -64,6 +64,7 @@ class Salle :
 
     def ajouterVoyageur(self,p,v,numPorte): #voyageur est un objet de la classe Voyageur
         voyageur = Voyageur(p,v,numPorte)
+        voyageur.dessinVoyageur()
         self.listeVoyageurs.append(voyageur)
         
     def effaceVoyageur(self,voyageur):
@@ -96,7 +97,7 @@ class Salle :
         pos=voyageur.position
         v=voyageur.vitesse
         porteDest=voyageur.porteDeSortie
-        d=self.vecteurDeplace(pos,porteDest,v)
+        d=self.vecteurDeplacement(pos,porteDest,v)
         posDest=[pos[0]+d[0],pos[1]+d[1]]
         if(not self.estCollision(posDest,numVoy)):
             return d
@@ -105,19 +106,20 @@ class Salle :
             for j in range(-k,k):
                 posAlt[1]=posDest[1]+j
                 if(not self.estCollision(posAlt,numVoy)):
-                    return [posAlt[0]-pos[0],posAlt[1]-posAlt[1]]
+                    return [posAlt[0]-pos[0],posAlt[1]-pos[1]]
             for j in range(-k,k):
                 posAlt[0]=posDest[0]+j
                 if(not self.estCollision(posAlt,numVoy)):
-                    return [posAlt[0]-pos[0],posAlt[1]-posAlt[1]]
+                    return [posAlt[0]-pos[0],posAlt[1]-pos[1]]
             for j in range(k,-k):
                 posAlt[1]=posDest[1]+j
                 if(not self.estCollision(posAlt,numVoy)):
-                    return [posAlt[0]-pos[0],posAlt[1]-posAlt[1]]
+                    return [posAlt[0]-pos[0],posAlt[1]-pos[1]]
             for j in range(k,-k):
                 posAlt[0]=posDest[0]+j
                 if(not self.estCollision(posAlt,numVoy)):
-                    return [posAlt[0]-pos[0],posAlt[1]-posAlt[1]]
+                    return [posAlt[0]-pos[0],posAlt[1]-pos[1]]
+        print("deplacement nul")
         return [0,0]
     
     
@@ -127,14 +129,26 @@ class Salle :
             porteDestination=alea_int(0,max-1)
             while (porteDestination==numPorte):
                 porteDestination=alea_int(0,max-1)
-            v=self.vecteurDeplacement(self.listeVoyageurs[numPorte].milieu,porteDestination,5)
-            self.ajouterVoyageur(self.listeVoyageurs[numPorte].milieu,v,porteDestination)
+            v=self.vecteurDeplacement(self.listePortes[numPorte].milieu,porteDestination,5)
+            self.ajouterVoyageur(self.listePortes[numPorte].milieu,v,porteDestination)
+
+    def porteLibre(self,numPorte):
+        collision=0
+        if len(self.listeVoyageurs)>0:
+            r=self.listeVoyageurs[0].rayon
+        else:
+            return True
+        p=self.listePortes[numPorte].milieu
+        for v in self.listeVoyageurs:
+            if distance(p,v.position)<=r*2:
+                collision+=1
+        return (collision==0)
 
     def estCollisionVoyageurs(self,p,numVoy):
         collision=0
         r=self.listeVoyageurs[numVoy].rayon
         for v in self.listeVoyageurs:
-            if v is self.listeVoyageurs[numVoy]:
+            if not (v is self.listeVoyageurs[numVoy]):
                 if distance(p,v.position)<=r+v.rayon:
                     collision+=1
         return (collision>0)
@@ -193,9 +207,24 @@ s.ajouterPoteau(pos)
 s.dessinPoteaux()
 s.desssinPortes()
 
-#on commence les tours des voyageurs von arriver
+#on commence les tours des Voyageur( vont arriver
 tour=0
-
+while (tour<150):
+    print("tour=",tour)
+    for k in range(len(s.listePortes)):
+        s.listePortes[k].debitEnCours-=1
+        if s.listePortes[k].debitEnCours==0:
+            s.ajoutVoyageurPorte(k)
+            s.listePortes[k].debitEnCours=s.listePortes[k].debit
+    for k in range(len(s.listeVoyageurs)):
+        s.listeVoyageurs[k].effaceVoyageur()
+        #d=s.trouveDeplacement(k)
+        s.listeVoyageurs[k].deplacement=s.vecteurDeplacement(s.listeVoyageurs[k].position,s.listeVoyageurs[k].porteDeSortie,s.listeVoyageurs[k].vitesse)
+        s.listeVoyageurs[k].deplacementVoyageur()
+        s.listeVoyageurs[k].dessinVoyageur()
+    attendre(500)    
+    tour+=1    
+            
 #attente pour terminer
 wait_escape(f)
 
