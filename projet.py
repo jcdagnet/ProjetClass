@@ -9,10 +9,10 @@ f=init_graphics(LARGEUR,HAUTEUR)
 
 
 class Voyageur:
-    def __init__(self,p,d,numPorte):
+    def __init__(self,p,numPorte):
         self.position=p
         self.rayon=5
-        self.deplacement=d
+        self.deplacement=[0,0]
         self.vitesse=5
         self.porteDeSortie=numPorte
         choix=alea_int(1,4)
@@ -24,13 +24,23 @@ class Voyageur:
             self.couleur=bleu
         else:
             self.couleur=orange
-                
+
+    def __str__(self):
+        mes=""
+        mes=mes+"position "+str(self.position[0])+str(self.position[1])
+        mes=mes+" rayon "+str(self.rayon)
+        mes=mes+" deplacement "+str(self.deplacement[0])+str(self.deplacement[1])
+        mes=mes+" vitesse "+str(self.vitesse)
+        mes=mes+" Porte de Sortie "+str(self.porteDeSortie)
+        mes=mes+" couleur "+str(self.couleur[0])+str(self.couleur[1])+str(self.couleur[2])
+        return mes
+
     def dessinVoyageur(self):
         draw_fill_circle(self.position,self.rayon,self.couleur,f)
-                
+
     def effaceVoyageur(self):
         draw_fill_circle(self.position,self.rayon,noir,f)
-        
+
     def deplacementVoyageur(self):
         self.position[0]+=self.deplacement[0]
         self.position[1]+=self.deplacement[1]
@@ -62,22 +72,22 @@ class Salle :
         self.listePortes = []
         self.listePoteaux=[]
 
-    def ajouterVoyageur(self,p,v,numPorte): #voyageur est un objet de la classe Voyageur
-        voyageur = Voyageur(p,v,numPorte)
+    def ajouterVoyageur(self,p,numPorte): #voyageur est un objet de la classe Voyageur
+        voyageur = Voyageur(p,numPorte)
         voyageur.dessinVoyageur()
         self.listeVoyageurs.append(voyageur)
-        
+
     def effaceVoyageur(self,voyageur):
         self.listeVoyageurs.remove(voyageur)
-   
+
     def ajouterPorte(self,p1,p2,d):
         porte = Porte(p1,p2,d)
         self.listePortes.append(porte)
 
     def effacePorte(self,porte):
         self.listeVoyageurs.remove(porte)
-   
-   
+
+
     def ajouterPoteau(self,p):
         poteau = Poteau(p)
         self.listePoteaux.append(poteau)
@@ -85,23 +95,27 @@ class Salle :
     def effacePoteau(self,poteau):
         self.listeVoyageurs.remove(poteau)
 
-    def vecteurDeplacement(self,pos,numPorte,v):
-        dest=self.listePortes[numPorte].milieu
+    def vecteurDeplacement(self,voyageur):
+        dest=milieu(self.listePortes[voyageur.porteDeSortie].extremite1,self.listePortes[voyageur.porteDeSortie].extremite2)
+        print("destination",dest[0]," ",dest[1])
+        pos=voyageur.position
+        v=voyageur.vitesse
         n=distance(pos,dest)
-        dx=round((dest[0]-pos[0])*v/n)
-        dy=round((dest[1]-pos[1])*v/n)
+        dx=round(((dest[0]-pos[0])*v)/n)
+        dy=round(((dest[1]-pos[1])*v)/n)
         return [dx,dy]
-        
+
     def trouveDeplacement(self,numVoy):
         voyageur=self.listeVoyageurs[numVoy]
         pos=voyageur.position
         v=voyageur.vitesse
-        porteDest=voyageur.porteDeSortie
-        d=self.vecteurDeplacement(pos,porteDest,v)
+        print("Voyageur ",numVoy)
+        d=self.vecteurDeplacement(voyageur)
+        print(" vecteur deplacement ",d[0]," ",d[1])
         posDest=[pos[0]+d[0],pos[1]+d[1]]
         if(not self.estCollision(posDest,numVoy)):
             return d
-        for k in range(v):
+        for k in range(1,2*v):
             posAlt=[posDest[0]-k,posDest[1]-k]
             for j in range(-k,k):
                 posAlt[1]=posDest[1]+j
@@ -121,16 +135,15 @@ class Salle :
                     return [posAlt[0]-pos[0],posAlt[1]-pos[1]]
         print("deplacement nul")
         return [0,0]
-    
-    
+
+
     def ajoutVoyageurPorte(self,numPorte):
         if(self.porteLibre(numPorte)):
             max=len(self.listePortes)
             porteDestination=alea_int(0,max-1)
             while (porteDestination==numPorte):
                 porteDestination=alea_int(0,max-1)
-            v=self.vecteurDeplacement(self.listePortes[numPorte].milieu,porteDestination,5)
-            self.ajouterVoyageur(self.listePortes[numPorte].milieu,v,porteDestination)
+            self.ajouterVoyageur(self.listePortes[numPorte].milieu,porteDestination)
 
     def porteLibre(self,numPorte):
         collision=0
@@ -160,18 +173,18 @@ class Salle :
             if distance(p,pot.position)<=r+pot.rayon:
                 collision+=1
         return (collision>0)
-    
+
     def estCollision(self,p,numVoy):
         return (self.estCollisionVoyageurs(p,numVoy) or self.estCollisionPoteaux(p,numVoy))
-    
+
     def dessinPoteaux(self):
         for pot in self.listePoteaux:
             pot.dessinPoteau()
-    
+
     def desssinPortes(self):
         for porte in self.listePortes:
             porte.dessinPorte()
-            
+
 
 #création de la salle
 s=Salle()
@@ -217,16 +230,17 @@ while (tour<150):
             s.ajoutVoyageurPorte(k)
             s.listePortes[k].debitEnCours=s.listePortes[k].debit
     for k in range(len(s.listeVoyageurs)):
-        s.listeVoyageurs[k].effaceVoyageur()
-        #d=s.trouveDeplacement(k)
-        s.listeVoyageurs[k].deplacement=s.vecteurDeplacement(s.listeVoyageurs[k].position,s.listeVoyageurs[k].porteDeSortie,s.listeVoyageurs[k].vitesse)
-        s.listeVoyageurs[k].deplacementVoyageur()
-        s.listeVoyageurs[k].dessinVoyageur()
-    attendre(500)    
-    tour+=1    
-            
+        voyageur=s.listeVoyageurs[k]
+        #print("voyageur ",k,voyageur)
+        voyageur.effaceVoyageur()
+        d=s.trouveDeplacement(k)
+        voyageur.deplacement=d
+        voyageur.deplacementVoyageur()
+        voyageur.dessinVoyageur()
+    attendre(100)
+    tour+=1
+
 #attente pour terminer
 wait_escape(f)
 
 quit_graphics()
-             

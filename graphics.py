@@ -127,6 +127,9 @@ def quit_graphics():
 def distance(point1,point2):
     return sqrt((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)
 
+def milieu(point1,point2):
+    return (round((point1[0]+point2[0])/2),round((point1[1]+point2[1])/2))
+
 #Pour un nombre aleatoire entre 0 et 1 taper random()
 
 # Retourne un entier aleatoire n tel que min <= n <= max
